@@ -20,6 +20,8 @@ jobs:
       run: |
         CONFIG_ENV=$(cat config.env | grep -w "CONFIG_ENV" | head -n 1 | cut -d "=" -f 2)
         echo "ENABLE_LXC_DOCKER=$(cat $CONFIG_ENV | grep -w "ENABLE_LXC_DOCKER" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        echo "MAKE_ANYKERNEL=$(cat $CONFIG_ENV | grep -w "MAKE_ANYKERNEL" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+        
         echo "KERNEL_SOURCE=$(cat $CONFIG_ENV | grep -w "KERNEL_SOURCE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
         echo "KERNEL_SOURCE_BRANCH=$(cat $CONFIG_ENV | grep -w "KERNEL_SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
         echo "KERNEL_CONFIG=$(cat $CONFIG_ENV | grep -w "KERNEL_CONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
@@ -263,7 +265,7 @@ jobs:
        fi
   
     - name: Make Anykernel3
-      if: env.CHECK_FILE_IS_OK == 'true'
+      if: env.MAKE_ANYKERNEL == 'true' && env.CHECK_FILE_IS_OK == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
         git clone https://github.com/osm0sis/AnyKernel3
@@ -291,14 +293,14 @@ jobs:
         fi
     
     - name: Upload ${{ env.KERNEL_IMAGE_NAME }}
-      if: env.CHECK_FILE_IS_OK == 'true'
+      if: env.HAVE_SOURCE_BOOT_IMAGE != 'true' && env.CHECK_FILE_IS_OK == 'true'
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.KERNEL_IMAGE_NAME }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
         path: kernel_workspace/android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }}
 
     - name: Upload AnyKernel3
-      if: env.CHECK_FILE_IS_OK == 'true'
+      if: env.MAKE_ANYKERNEL == 'true' && env.CHECK_FILE_IS_OK == 'true'
       uses: actions/upload-artifact@v3
       with:
         name: AnyKernel3${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
