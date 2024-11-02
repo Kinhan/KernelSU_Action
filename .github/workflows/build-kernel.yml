@@ -189,10 +189,6 @@ jobs:
         ./runcpatch.sh android-kernel/kernel/cgroup/cgroup.c               
         fi
         
-        if [ -f android-kernel/net/netfilter/xt_qtaguid.c ]; then
-        wget https://raw.githubusercontent.com/Kinhan/android-lxc-docker/main/xt_qtaguid.patch
-        patch -p0 < xt_qtaguid.patch
-        fi
     - name: Setup KernelSU
       if: env.ENABLE_KERNELSU == 'true'
       run: |
